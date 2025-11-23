@@ -1,0 +1,35 @@
+// Friction Frenzy — Short JS
+// Attach this to the HTML (assumes elements with matching IDs exist)
+const block = document.getElementById('block');
+const muSlider = document.getElementById('mu');
+const muVal = document.getElementById('muVal');
+const vEl = document.getElementById('v');
+const xEl = document.getElementById('x');
+const pushBtn = document.getElementById('push');
+const resetBtn = document.getElementById('reset');
+const track = document.getElementById('track');
+
+let mu = parseFloat(muSlider?.value || 0.2);
+muVal.textContent = mu.toFixed(2);
+let v = 0, x = 0; // m/s and m (scaled)
+const m = 1, g = 9.81, scale = 200, dt = 1/60;
+const frictionForce = () => mu * m * g;
+
+muSlider?.addEventListener('input', ()=>{ mu = parseFloat(muSlider.value); muVal.textContent = mu.toFixed(2); });
+pushBtn?.addEventListener('click', ()=>{ v += 3; });
+resetBtn?.addEventListener('click', ()=>{ v = 0; x = 0; updateDisplay(); placeBlock(); });
+
+function placeBlock(){
+  const px = 20 + Math.min(x*scale, track.clientWidth - 80);
+  block.style.left = px + 'px';
+}
+function updateDisplay(){ vEl.textContent = v.toFixed(2); xEl.textContent = x.toFixed(2); }
+
+function step(){
+  if (Math.abs(v) > 1e-4){
+    const f = frictionForce();
+    const a = -Math.sign(v) * (f/m);
+    const vNext = v + a*dt;
+    if (vNext === 0 || v*vNext < 0) v = 0; else v = vNext;
+    x += v*dt;
+    const maxX = (track.clientWidt
