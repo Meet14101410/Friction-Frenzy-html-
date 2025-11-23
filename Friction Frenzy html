@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Friction Frenzy (Short)</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Arial;background:#0f172a;color:#e6eef8;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+    .stage{width:800px;background:#071028;padding:18px;border-radius:8px;box-shadow:0 10px 30px rgba(2,6,23,.6)}
+    .track{height:120px;background:linear-gradient(90deg,#0b2a4a,#0d3a60);border-radius:6px;position:relative;overflow:hidden}
+    .block{width:60px;height:40px;background:#f59e0b;border-radius:6px;position:absolute;left:20px;bottom:20px;display:flex;align-items:center;justify-content:center;font-weight:700}
+    .controls{display:flex;gap:12px;align-items:center;margin-top:10px}
+    label{font-size:13px}
+    .stat{margin-top:10px;font-size:13px}
+    button{background:#06b6d4;border:none;padding:8px 12px;border-radius:6px;color:#032;cursor:pointer}
+    input[type=range]{width:220px}
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <h3>Friction Frenzy</h3>
+    <div class="track" id="track">
+      <div class="block" id="block">🟧</div>
+    </div>
+
+    <div class="controls">
+      <label>Friction μ: <span id="muVal">0.2</span></label>
+      <input id="mu" type="range" min="0" max="1" step="0.01" value="0.2">
+      <button id="push">Apply Push</button>
+      <button id="reset">Reset</button>
+    </div>
+
+    <div class="stat">
+      <div>Velocity: <span id="v">0.00</span> m/s</div>
+      <div>Position: <span id="x">0.00</span> m</div>
+    </div>
+  </div>
+
+  <script>
+    // Very short physics: mass m=1 kg, g=9.81 m/s^2
+    const block = document.getElementById('block');
+    const muSlider = document.getElementById('mu');
+    const muVal = document.getElementById('muVal');
+    const vEl = document.getElementById('v');
+    const xEl = document.getElementById('x');
+    const pushBtn = document.getElementById('push');
+    const resetBtn = document.getElementById('reset');
+    const track = document.getElementById('track');
+
+    let mu = parseFloat(muSlider.value);
+    muVal.textContent = mu.toFixed(2);
+
+    let v = 0; // m/s
+    let x = 0; // m (scaled)
+    const m = 1; const g = 9.81;
+    const scale = 200; // px per meter (for display)
+    const dt = 1/60; // 60 FPS
+    const frictionForce = () => mu * m * g; // kinetic friction magnitude
+
+    muSlider.addEventListener('input', ()=>{
+      mu = parseFloat(muSlider.value); muVal.textContent = mu.toFixed(2);
+    });
+
+    pushBtn.addEventListener('click', ()=>{ v += 3; /* impulse: +3 m/s */ });
+    resetBtn.addEventListener('click', ()=>{ v=0; x=0; updateDisplay(); placeBlock(); });
+
+    function placeBlock(){
+      const px = 20 + Math.min(x*scale, track.clientWidth - 80);
+      block.style.left = px + 'px';
+    }
+
+    function updateDisplay(){ vEl.textContent = v.toFixed(2); xEl.textContent = x.toFixed(2); }
+
+    // Simple integration loop with kinetic friction opposing motion
+    function step(){
+      if (Math.abs(v) > 1e-4){
+        const f = frictionForce();
+        const a = -Math.sign(v) * (f/m); // acceleration opposing velocity
+        // don't reverse due to friction: stop when v would cross zero
+        const vNext = v + a*dt;
+        if (v*Math.sign(vNext) <= 0) { v = 0; }
+        else { v = vNext; }
+        x += v*dt;
+        // bounds
+        const maxX = (track.clientWidth - 80)/scale;
+        if (x > maxX){ x = maxX; v = 0; }
+        if (x < 0){ x = 0; v = 0; }
+      }
+      placeBlock(); updateDisplay();
+      requestAnimationFrame(step);
+    }
+
+    // init
+    placeBlock(); updateDisplay(); requestAnimationFrame(step);
+  </script>
+</
