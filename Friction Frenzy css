@@ -1,0 +1,12 @@
+/* Friction Frenzy — Short CSS */
+:root{--bg:#0f172a;--panel:#071028;--track1:#0b2a4a;--track2:#0d3a60;--accent:#06b6d4;--block:#f59e0b;--text:#e6eef8}
+html,body{height:100%;margin:0}
+body{font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center}
+.stage{width:800px;background:var(--panel);padding:18px;border-radius:8px;box-shadow:0 10px 30px rgba(2,6,23,.6)}
+.track{height:120px;background:linear-gradient(90deg,var(--track1),var(--track2));border-radius:6px;position:relative;overflow:hidden}
+.block{width:60px;height:40px;background:var(--block);border-radius:6px;position:absolute;left:20px;bottom:20px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.controls{display:flex;gap:12px;align-items:center;margin-top:10px}
+label{font-size:13px}
+.stat{margin-top:10px;font-size:13px}
+button{background:var(--accent);border:none;padding:8px 12px;border-radius:6px;color:#032;cursor:pointer}
+input[type=range]{width:220px}
